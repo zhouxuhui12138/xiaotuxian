@@ -1,12 +1,24 @@
 <template>
-  <div class="cart">
-    <a class="curr" href="javascript:;">
-      <i class="iconfont icon-cart"></i><em>{{ total }}</em>
-    </a>
-    <div class="layer">
+  <div class="cart" @mouseenter="isShow = true">
+    <router-link class="curr" href="javascript:;" to="/cart">
+      <i class="iconfont icon-cart"></i
+      ><em>{{ $store.getters["cart/trueTotal"] }}</em>
+    </router-link>
+    <div
+      class="layer"
+      v-show="
+        $store.getters['cart/trueTotal'] > 0 &&
+        $route.path !== '/cart' &&
+        isShow
+      "
+    >
       <div class="list">
-        <div class="item" v-for="item in list" :key="item.id">
-          <router-link to="">
+        <div
+          class="item"
+          v-for="item in $store.getters['cart/trueList']"
+          :key="item.skuId"
+        >
+          <router-link :to="`/product/${item.id}`" @click="isShow = false">
             <img :src="item.picture" alt="" />
             <div class="center">
               <p class="name ellipsis-2">
@@ -19,28 +31,47 @@
               <p class="count">x{{ item.count }}</p>
             </div>
           </router-link>
-          <i class="iconfont icon-close-new"></i>
+          <!-- 删除 -->
+          <i
+            class="iconfont icon-close-new"
+            @click="delectCart(item.skuId)"
+          ></i>
         </div>
       </div>
       <div class="foot">
         <div class="total">
-          <p>共 {{ total }} 件商品</p>
-          <p>&yen;{{ totalPrice }}</p>
+          <p>共 {{ $store.getters["cart/trueTotal"] }} 件商品</p>
+          <p>&yen;{{ $store.getters["cart/trueTotalPrice"] }}</p>
         </div>
-        <xtx-button type="plain">去购物车结算</xtx-button>
+        <xtx-button type="plain" @click="$router.push('/cart')"
+          >去购物车结算</xtx-button
+        >
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
+import { ref } from "vue"
 import { useStore } from "vuex"
+import Message from "./library/Message"
 
-const sotre = useStore()
+const store = useStore()
 
-const list = sotre.getters["cart/trueList"]
-const total = sotre.getters["cart/trueTotal"]
-const totalPrice = sotre.getters["cart/trueTotalPrice"]
+// 页面创建更新购物车信息
+if (store.getters["cart/trueTotal"]) {
+  store.dispatch("cart/getCartList").then(() => {
+    Message({ text: "更新购物车成功", type: "success" })
+  })
+}
+
+// 删除购物车
+const delectCart = skuId => {
+  store.dispatch("cart/delectCart", skuId)
+}
+
+// 控制弹出层是否显示
+const isShow = ref(false)
 </script>
 
 <style scoped lang="less">

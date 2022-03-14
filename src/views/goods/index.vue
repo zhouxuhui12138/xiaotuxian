@@ -21,7 +21,7 @@
         <div class="spec">
           <goods-name :goods="goods" />
           <!-- sku组件 -->
-          <goods-sku :goods="goods" @change="skuChange" />
+          <goods-sku :goods="goods" @change="skuChange" v-if="goods" />
           <!-- 数量组件 -->
           <xtx-numbox v-model="num" :max="goods.inventory" label="数量" />
           <xtx-button type="primary" style="margin-top: 20px" @click="addCart"
