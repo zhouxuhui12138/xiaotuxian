@@ -1,0 +1,41 @@
+<script>
+import { h } from "vue"
+export default {
+  name: "XtxBread",
+  render() {
+    const items = this.$slots.default()
+    const domArr = []
+    items.forEach((item, index) => {
+      domArr.push(item)
+      if (index < items.length - 1) {
+        domArr.push(h('i', { class: 'iconfont icon-angle-right' }))
+      }
+    })
+
+    // template标签去掉 render函数的返回值就是html
+    return h("div", { class: "xtx-bread" }, domArr)
+  }
+}
+</script>
+
+<style lang="less">
+.xtx-bread {
+  display: flex;
+  padding: 25px 10px;
+  &-item {
+    a {
+      color: #666;
+      transition: all 0.4s;
+      &:hover {
+        color: @xtxColor;
+      }
+    }
+  }
+  i {
+    font-size: 12px;
+    margin-left: 5px;
+    margin-right: 5px;
+    line-height: 22px;
+  }
+}
+</style>
