@@ -5,7 +5,7 @@ export default {
   namespaced: true,
   state() {
     return {
-      list: null
+      list: []
     }
   },
   getters: {
@@ -19,21 +19,34 @@ export default {
     },
     // 有效商品金额
     trueTotalPrice(state, getters) {
-      return (
-        getters.trueList.reduce(
-          (p, c) => p + c.count * parseInt(c.nowPrice * 100),
-          0
-        ) / 100
-      )
+      return getters.trueList.reduce((p, c) => p + c.count * parseInt(c.nowPrice * 100), 0) / 100
+    },
+    // 无效商品列表
+    unUsedList(state) {
+      return state.list.filter(item => (item.skuId && !item.isEffective) || item.stock <= 0)
+    },
+    // 已选择的商品列表
+    selectedList(state, getters) {
+      return state.list.filter(item => item.selected)
+    },
+    // 已选择商品总件数
+    selectedTotal(state, getters) {
+      return getters.selectedList.reduce((p, c) => p + c.count, 0)
+    },
+    // 已选择商品总金额
+    selectedTotalPrice(state, getters) {
+      return getters.selectedList.reduce((p, c) => p + c.count * parseInt(c.nowPrice * 100), 0) / 100
+    },
+    // 是否全选
+    isCheckAll(state, getters) {
+      return getters.trueList.length !== 0 && getters.trueList.length === getters.selectedList.length
     }
   },
   mutations: {
-    // 添加购物车 同步
+    // 添加购物车
     addCart(state, payload) {
       // 获取重复商品的index
-      const sameIndex = state.list.findIndex(
-        goods => goods.skuId === payload.skuId
-      )
+      const sameIndex = state.list.findIndex(goods => goods.skuId === payload.skuId)
       if (sameIndex > -1) {
         // 有重复商品
         const count = state.list[sameIndex].count
@@ -44,46 +57,37 @@ export default {
       // 插入最新
       state.list.unshift(payload)
     },
-    // 更新购物车 同步
+    // 更新购物车
     updataCart(state, payload) {
       const updataGoods = state.list.find(item => item.skuId === payload.skuId)
       for (const key in payload) {
-        if (
-          payload[key] !== undefined &&
-          payload[key] !== null &&
-          payload[key] !== ""
-        ) {
+        if (payload[key] !== undefined && payload[key] !== null && payload[key] !== "") {
           updataGoods[key] = payload[key]
         }
       }
     },
-    // 删除购物车 同步
+    // 删除购物车
     delectCart(state, payload) {
       const index = state.list.findIndex(item => item.skuId === payload)
       state.list.splice(index, 1)
     }
   },
   actions: {
-    // 添加购物车 异步
+    // 添加购物车
     addCart(ctx, payload) {
       return new Promise((resolve, reject) => {
         if (ctx.rootState.users.token) {
-          // 已登录
         } else {
-          // 未登录
           ctx.commit("addCart", payload)
           resolve()
         }
       })
     },
-    // 更新购物车 异步
+    // 获取最新购物车数据
     getCartList(ctx) {
       return new Promise((resolve, reject) => {
         if (ctx.rootState.users.token) {
-          // 已登录
         } else {
-          // 未登录
-          // 获取所有购物车数据
           const promiseArr = ctx.getters.trueList.map(item => {
             if (item.skuId) {
               return getNewCartList(item.skuId)
@@ -91,7 +95,7 @@ export default {
           })
           Promise.all(promiseArr).then(resList => {
             resList.forEach((item, index) => {
-              ctx.commit('updataCart', {
+              ctx.commit("updataCart", {
                 skuId: ctx.getters.trueList[index].skuId,
                 ...item.result
               })
@@ -101,17 +105,37 @@ export default {
         }
       })
     },
-    // 删除购物车 异步
+    // 删除购物车
     delectCart(ctx, payload) {
       return new Promise((resolve, reject) => {
         if (ctx.rootState.users.token) {
-          // 已登录
         } else {
-          // 未登录
           ctx.commit("delectCart", payload)
           resolve()
         }
       })
     },
+    // 修改购物车
+    updataCart(ctx, payload) {
+      return new Promise((resolve, reject) => {
+        if (ctx.rootState.users.token) {
+        } else {
+          ctx.commit("updataCart", payload)
+          resolve()
+        }
+      })
+    },
+    // 全选
+    checkAllCart(ctx, payload) {
+      return new Promise((resolve, reject) => {
+        if (ctx.rootState.users.token) {
+        } else {
+          ctx.getters.trueList.forEach(item => {
+            ctx.commit("updataCart", { skuId: item.skuId, selected: payload })
+          })
+          resolve()
+        }
+      })
+    }
   }
 }
