@@ -13,6 +13,7 @@ import XtxCity from './XtxCity.vue'
 import XtxNumbox from './XtxNumbox.vue'
 import XtxButton from './XtxButton.vue'
 import XtxPagination from './XtxPagination.vue'
+import XtxConfirm from './XtxConfirm.vue'
 
 export default {
   install(app) {
@@ -38,6 +39,8 @@ export default {
     app.component(XtxButton.name, XtxButton)
     // 分页组件
     app.component(XtxPagination.name, XtxPagination)
+    // confirm
+    app.component(XtxConfirm.name, XtxConfirm)
 
     // 定义指令
     difineDirective(app)

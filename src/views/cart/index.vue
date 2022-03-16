@@ -37,6 +37,7 @@
                       {{ goods.name }}
                     </p>
                     <!-- 选择规格组件 -->
+                    <CartSku :skuId="goods.skuId" :attrsText="goods.attrsText" />
                   </div>
                 </div>
               </td>
@@ -48,7 +49,7 @@
                 </p>
               </td>
               <td class="tc">
-                <XtxNumbox :modelValue="goods.count" />
+                <XtxNumbox @change="changeNum(goods.skuId, $event)" :modelValue="goods.count" />
               </td>
               <td class="tc">
                 <p class="f16 red">&yen;{{ (Math.round(goods.nowPrice * 100) * goods.count) / 100 }}</p>
@@ -99,9 +100,9 @@
       <div class="action">
         <div class="batch">
           <XtxCheckbox @change="checkAll" :modelValue="$store.getters['cart/isCheckAll']">全选</XtxCheckbox>
-          <a href="javascript:;">删除商品</a>
+          <a href="javascript:;" @click="batchDelectCart">删除商品</a>
           <a href="javascript:;">移入收藏夹</a>
-          <a href="javascript:;">清空失效商品</a>
+          <a href="javascript:;" @click="batchDelectCart(-1)">清空失效商品</a>
         </div>
         <div class="total">
           共 {{ $store.getters["cart/trueTotal"] }} 件商品，已选择
@@ -118,9 +119,11 @@
 
 <script setup>
 import { useStore } from "vuex"
+import Confirm from "../../components/library/Confirm"
 import Message from "../../components/library/Message"
 import GoodsRecommend from "../goods/GoodsRecommend.vue"
 import CartNone from "./CartNone.vue"
+import CartSku from "./CartSku.vue"
 
 // 修改单选状态
 const store = useStore()
@@ -133,11 +136,32 @@ const checkAll = selected => {
   store.dispatch("cart/checkAllCart", selected)
 }
 
+// 改变数量
+const changeNum = (skuId, count) => {
+  store.dispatch("cart/updataCart", { skuId, count })
+}
+
 // 删除
 const delect = skuId => {
-  store.dispatch("cart/delectCart", skuId).then(() => {
-    Message({ text: "删除成功", type: "success" })
-  })
+  Confirm({ text: "是否删除此商品" })
+    .then(() => {
+      store.dispatch("cart/delectCart", skuId).then(() => {
+        Message({ text: "删除成功", type: "success" })
+      })
+    })
+    .catch(err => err)
+}
+
+// 批量删除选中的商品
+const batchDelectCart = isClear => {
+  // 删除选中商品
+  Confirm({ text: "是否删除" })
+    .then(() => {
+      store.dispatch("cart/batchDelectCart", isClear).then(() => {
+        Message({ text: "删除成功", type: "success" })
+      })
+    })
+    .catch(err => err)
 }
 </script>
 

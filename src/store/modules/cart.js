@@ -136,6 +136,18 @@ export default {
           resolve()
         }
       })
+    },
+    // 批量删除
+    batchDelectCart(ctx, isClear) {
+      return new Promise((resolve, reject) => {
+        if (ctx.rootState.users.token) {
+        } else {
+          ctx.getters[isClear === -1 ? "unUsedList" : "selectedList"].forEach(item => {
+            ctx.commit("delectCart", { skuId: item.skuId })
+          })
+          resolve()
+        }
+      })
     }
   }
 }

@@ -9,3 +9,13 @@ export const getNewCartList = skuId => {
     method: "get"
   })
 }
+
+/**
+ * 获取购物车sku信息
+ */
+export const getCartSku = skuId => {
+  return request({
+    url: `/goods/sku/${skuId}`,
+    method: "get"
+  })
+}
