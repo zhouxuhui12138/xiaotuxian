@@ -7,8 +7,8 @@
     <div class="layer" v-if="isShow">
       <div class="loading" v-if="loading"></div>
       <template v-else>
-        <GoodsSku :skuId="skuId" :goods="goods" />
-        <XtxButton type="primary" size="mini" style="margin-left: 60px">确认</XtxButton>
+        <GoodsSku @change="skuChange" :skuId="skuId" :goods="goods" />
+        <XtxButton @click="submit" type="primary" size="mini" style="margin-left: 60px">确认</XtxButton>
       </template>
     </div>
   </div>
@@ -58,6 +58,21 @@ const target = ref(null)
 onClickOutside(target, () => {
   hide()
 })
+
+// sku改变
+const currentSku = ref(null)
+const skuChange = sku => {
+  currentSku.value = sku
+}
+
+// sku改变时通知父组件
+const emit = defineEmits(["change"])
+const submit = () => {
+  if (currentSku.value && currentSku.value.skuId && currentSku.value.skuId !== props.skuId) {
+    emit("change", currentSku.value)
+    hide()
+  }
+}
 </script>
 
 <style scoped lang="less">

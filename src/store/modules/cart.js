@@ -1,4 +1,4 @@
-import { getNewCartList } from "../../api/cart"
+import { addCart, getCart, getNewCartList, mergeLocalCart } from "../../api/cart"
 
 // 购物车状态
 export default {
@@ -70,13 +70,23 @@ export default {
     delectCart(state, payload) {
       const index = state.list.findIndex(item => item.skuId === payload)
       state.list.splice(index, 1)
+    },
+    // 重置购物车
+    setCart(state, payload) {
+      state.list = payload
     }
   },
   actions: {
     // 添加购物车
     addCart(ctx, payload) {
       return new Promise((resolve, reject) => {
-        if (ctx.rootState.users.token) {
+        if (ctx.rootState.users.profile.token) {
+          addCart({ skuId: payload.skuId, count: payload.count }).then(res => {
+            return getCart()
+          }).then(data => {
+            ctx.commit('setCart', data.result)
+            resolve()
+          })
         } else {
           ctx.commit("addCart", payload)
           resolve()
@@ -86,7 +96,11 @@ export default {
     // 获取最新购物车数据
     getCartList(ctx) {
       return new Promise((resolve, reject) => {
-        if (ctx.rootState.users.token) {
+        if (ctx.rootState.users.profile.token) {
+          getCart().then(data => {
+            ctx.commit('setCart', data.result)
+            resolve()
+          })
         } else {
           const promiseArr = ctx.getters.trueList.map(item => {
             if (item.skuId) {
@@ -108,7 +122,7 @@ export default {
     // 删除购物车
     delectCart(ctx, payload) {
       return new Promise((resolve, reject) => {
-        if (ctx.rootState.users.token) {
+        if (ctx.rootState.users.profile.token) {
         } else {
           ctx.commit("delectCart", payload)
           resolve()
@@ -118,7 +132,7 @@ export default {
     // 修改购物车
     updataCart(ctx, payload) {
       return new Promise((resolve, reject) => {
-        if (ctx.rootState.users.token) {
+        if (ctx.rootState.users.profile.token) {
         } else {
           ctx.commit("updataCart", payload)
           resolve()
@@ -128,7 +142,7 @@ export default {
     // 全选
     checkAllCart(ctx, payload) {
       return new Promise((resolve, reject) => {
-        if (ctx.rootState.users.token) {
+        if (ctx.rootState.users.profile.token) {
         } else {
           ctx.getters.trueList.forEach(item => {
             ctx.commit("updataCart", { skuId: item.skuId, selected: payload })
@@ -140,7 +154,7 @@ export default {
     // 批量删除
     batchDelectCart(ctx, isClear) {
       return new Promise((resolve, reject) => {
-        if (ctx.rootState.users.token) {
+        if (ctx.rootState.users.profile.token) {
         } else {
           ctx.getters[isClear === -1 ? "unUsedList" : "selectedList"].forEach(item => {
             ctx.commit("delectCart", { skuId: item.skuId })
@@ -148,6 +162,35 @@ export default {
           resolve()
         }
       })
+    },
+    // 更改购物车sku
+    updataCartSku(ctx, { oldSkuId, newSku }) {
+      return new Promise((resolve, reject) => {
+        if (ctx.rootState.users.profile.token) {
+        } else {
+          // 找出旧的sku信息
+          const oldSku = ctx.getters.trueList.find(item => item.skuId === oldSkuId)
+          // 删除旧的sku
+          ctx.commit("delectCart", oldSkuId)
+          // 合并新的sku并插入
+          const { skuId, price: nowPrice, specsText: attrsText, inventory: stock } = newSku
+          const newGoods = { ...oldSku, skuId, nowPrice, attrsText, stock }
+          ctx.commit("addCart", newGoods)
+          resolve()
+        }
+      })
+    },
+    // 登录后合并购物车
+    async mergeLocalCart(ctx) {
+      // 准备合并的参数
+      const list = ctx.getters.trueList.map(item => {
+        const { skuId, selected, count } = item
+        return { skuId, selected, count }
+      })
+      // 发送请求
+      await mergeLocalCart(list)
+      // 重置购物车
+      ctx.commit("setCart", [])
     }
   }
 }

@@ -37,7 +37,7 @@
                       {{ goods.name }}
                     </p>
                     <!-- 选择规格组件 -->
-                    <CartSku :skuId="goods.skuId" :attrsText="goods.attrsText" />
+                    <CartSku @change="updataSku(goods.skuId, $event)" :skuId="goods.skuId" :attrsText="goods.attrsText" />
                   </div>
                 </div>
               </td>
@@ -163,6 +163,12 @@ const batchDelectCart = isClear => {
     })
     .catch(err => err)
 }
+
+// 改变过后的sku
+const updataSku = (oldSkuId, newSku) => {
+  store.dispatch('cart/updataCartSku', { oldSkuId, newSku })
+}
+
 </script>
 
 <style scoped lang="less">

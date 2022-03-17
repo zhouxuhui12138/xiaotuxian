@@ -4,17 +4,9 @@
       <a @click="isMsgLogin = false" href="javascript:;" v-if="isMsgLogin">
         <i class="iconfont icon-user"></i> 使用账号登录
       </a>
-      <a @click="isMsgLogin = true" href="javascript:;" v-else>
-        <i class="iconfont icon-msg"></i> 使用短信登录
-      </a>
+      <a @click="isMsgLogin = true" href="javascript:;" v-else> <i class="iconfont icon-msg"></i> 使用短信登录 </a>
     </div>
-    <Form
-      class="form"
-      autocomplete="off"
-      :validation-schema="myValidate"
-      v-slot="{ errors }"
-      ref="target"
-    >
+    <Form class="form" autocomplete="off" :validation-schema="myValidate" v-slot="{ errors }" ref="target">
       <template v-if="!isMsgLogin">
         <div class="form-item">
           <div class="input">
@@ -28,59 +20,36 @@
             />
           </div>
           <!-- 错误提示 -->
-          <div class="error" v-if="errors.account">
-            <i class="iconfont icon-warning" />{{ errors.account }}
-          </div>
+          <div class="error" v-if="errors.account"><i class="iconfont icon-warning" />{{ errors.account }}</div>
         </div>
         <div class="form-item">
           <div class="input">
             <i class="iconfont icon-lock"></i>
-            <Field
-              name="password"
-              v-model="form.password"
-              type="password"
-              placeholder="请输入密码"
-            />
+            <Field name="password" v-model="form.password" type="password" placeholder="请输入密码" />
           </div>
           <!-- 错误提示 -->
-          <div class="error" v-if="errors.password">
-            <i class="iconfont icon-warning" />{{ errors.password }}
-          </div>
+          <div class="error" v-if="errors.password"><i class="iconfont icon-warning" />{{ errors.password }}</div>
         </div>
       </template>
       <template v-else>
         <div class="form-item">
           <div class="input">
             <i class="iconfont icon-user"></i>
-            <Field
-              name="mobile"
-              v-model="form.mobile"
-              type="text"
-              placeholder="请输入手机号"
-            />
+            <Field name="mobile" v-model="form.mobile" type="text" placeholder="请输入手机号" />
           </div>
           <!-- 错误提示 -->
-          <div class="error" v-if="errors.mobile">
-            <i class="iconfont icon-warning" />{{ errors.mobile }}
-          </div>
+          <div class="error" v-if="errors.mobile"><i class="iconfont icon-warning" />{{ errors.mobile }}</div>
         </div>
         <div class="form-item">
           <div class="input">
             <i class="iconfont icon-code"></i>
-            <Field
-              name="code"
-              v-model="form.code"
-              type="text"
-              placeholder="请输入验证码"
-            />
+            <Field name="code" v-model="form.code" type="text" placeholder="请输入验证码" />
             <span class="code" @click="send">
               {{ time === 0 ? "发送验证码" : `${time}秒后发送` }}
             </span>
           </div>
           <!-- 错误提示 -->
-          <div class="error" v-if="errors.code">
-            <i class="iconfont icon-warning" />{{ errors.code }}
-          </div>
+          <div class="error" v-if="errors.code"><i class="iconfont icon-warning" />{{ errors.code }}</div>
         </div>
       </template>
       <div class="form-item">
@@ -92,18 +61,12 @@
           <a href="javascript:;">《服务条款》</a>
         </div>
         <!-- 错误提示 -->
-        <div class="error" v-if="errors.isAgree">
-          <i class="iconfont icon-warning" />{{ errors.isAgree }}
-        </div>
+        <div class="error" v-if="errors.isAgree"><i class="iconfont icon-warning" />{{ errors.isAgree }}</div>
       </div>
       <a href="javascript:;" class="btn" @click="login">登录</a>
     </Form>
     <div class="action">
-      <img
-        src="https://qzonestyle.gtimg.cn/qzone/vas/opensns/res/img/Connect_logo_7.png"
-        alt=""
-        @click="qqLogin"
-      />
+      <img src="https://qzonestyle.gtimg.cn/qzone/vas/opensns/res/img/Connect_logo_7.png" alt="" @click="qqLogin" />
       <div class="url">
         <a href="javascript:;">忘记密码</a>
         <a href="javascript:;">免费注册</a>
@@ -181,10 +144,11 @@ const login = async () => {
         token,
         mobile
       })
-      // 提示
-      Message({ text: "登录成功", type: "success" })
-      // 跳转
-      router.push(route.query.redirectUrl || "/")
+      store.dispatch("cart/mergeLocalCart").then(() => {
+        Message({ text: "登录成功", type: "success" })
+        // 跳转
+        router.push(route.query.redirectUrl || "/")
+      })
     } catch (error) {
       Message({
         text: error.response.data.message || "登录失败",

@@ -19,3 +19,35 @@ export const getCartSku = skuId => {
     method: "get"
   })
 }
+
+/**
+ * 获取购物车列表
+ */
+export const getCart = () => {
+  return request({
+    url: `/member/cart`,
+    method: "get"
+  })
+}
+
+/**
+ * 合并购物车
+ */
+export const mergeLocalCart  = data => {
+  return request({
+    url: `/member/cart/merge`,
+    method: "post",
+    data
+  })
+}
+
+/**
+ * 加入购物车
+ */
+export const addCart  = data => {
+  return request({
+    url: `/member/cart`,
+    method: "post",
+    data
+  })
+}

@@ -35,6 +35,7 @@ const { profile } = store.state.users
 // 退出登录
 const logout = () => {
   store.commit("users/setProfile", {})
+  store.commit('cart/setCart', [])
   profile.token = ''
 }
 </script>
