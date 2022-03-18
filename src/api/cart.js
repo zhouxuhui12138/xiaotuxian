@@ -33,7 +33,7 @@ export const getCart = () => {
 /**
  * 合并购物车
  */
-export const mergeLocalCart  = data => {
+export const mergeLocalCart = data => {
   return request({
     url: `/member/cart/merge`,
     method: "post",
@@ -44,10 +44,51 @@ export const mergeLocalCart  = data => {
 /**
  * 加入购物车
  */
-export const addCart  = data => {
+export const addCart = data => {
   return request({
     url: `/member/cart`,
     method: "post",
     data
+  })
+}
+
+/**
+ * 删除购物车
+ */
+export const delectCart = ids => {
+  return request({
+    url: `/member/cart`,
+    method: "delete",
+    data: {
+      ids
+    }
+  })
+}
+
+/**
+ * 修改购物车
+ */
+export const updateCart = ({ skuId, selected, count }) => {
+  return request({
+    url: `/member/cart/${skuId}`,
+    method: "put",
+    data: {
+      selected,
+      count
+    }
+  })
+}
+
+/**
+ * 全选
+ */
+export const checkAllCart = ({ selected, ids }) => {
+  return request({
+    url: `/member/cart/selected`,
+    method: "put",
+    data: {
+      selected,
+      ids
+    }
   })
 }

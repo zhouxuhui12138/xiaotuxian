@@ -37,7 +37,11 @@
                       {{ goods.name }}
                     </p>
                     <!-- 选择规格组件 -->
-                    <CartSku @change="updataSku(goods.skuId, $event)" :skuId="goods.skuId" :attrsText="goods.attrsText" />
+                    <CartSku
+                      @change="updataSku(goods.skuId, $event)"
+                      :skuId="goods.skuId"
+                      :attrsText="goods.attrsText"
+                    />
                   </div>
                 </div>
               </td>
@@ -108,7 +112,7 @@
           共 {{ $store.getters["cart/trueTotal"] }} 件商品，已选择
           {{ $store.getters["cart/selectedTotal"] }} 件，商品合计：
           <span class="red">¥{{ $store.getters["cart/selectedTotalPrice"] }}</span>
-          <XtxButton type="primary">下单结算</XtxButton>
+          <XtxButton @click="pay" type="primary">下单结算</XtxButton>
         </div>
       </div>
       <!-- 猜你喜欢 -->
@@ -118,6 +122,7 @@
 </template>
 
 <script setup>
+import { useRouter } from "vue-router"
 import { useStore } from "vuex"
 import Confirm from "../../components/library/Confirm"
 import Message from "../../components/library/Message"
@@ -166,9 +171,20 @@ const batchDelectCart = isClear => {
 
 // 改变过后的sku
 const updataSku = (oldSkuId, newSku) => {
-  store.dispatch('cart/updataCartSku', { oldSkuId, newSku })
+  store.dispatch("cart/updataCartSku", { oldSkuId, newSku })
 }
 
+const router = useRouter()
+const pay = () => {
+  if (store.getters["cart/selectedList"].length === 0) {
+    return Message({ text: "请至少选择一件商品", type: "warn" })
+  }
+  Confirm({ text: "下单需要登录，现在登录？" })
+    .then(() => {
+      router.push("/member/checkout")
+    })
+    .catch(e => e)
+}
 </script>
 
 <style scoped lang="less">

@@ -1,4 +1,4 @@
-import { addCart, getCart, getNewCartList, mergeLocalCart } from "../../api/cart"
+import { addCart, checkAllCart, delectCart, getCart, getNewCartList, mergeLocalCart, updateCart } from "../../api/cart"
 
 // 购物车状态
 export default {
@@ -81,12 +81,14 @@ export default {
     addCart(ctx, payload) {
       return new Promise((resolve, reject) => {
         if (ctx.rootState.users.profile.token) {
-          addCart({ skuId: payload.skuId, count: payload.count }).then(res => {
-            return getCart()
-          }).then(data => {
-            ctx.commit('setCart', data.result)
-            resolve()
-          })
+          addCart({ skuId: payload.skuId, count: payload.count })
+            .then(res => {
+              return getCart()
+            })
+            .then(data => {
+              ctx.commit("setCart", data.result)
+              resolve()
+            })
         } else {
           ctx.commit("addCart", payload)
           resolve()
@@ -98,7 +100,7 @@ export default {
       return new Promise((resolve, reject) => {
         if (ctx.rootState.users.profile.token) {
           getCart().then(data => {
-            ctx.commit('setCart', data.result)
+            ctx.commit("setCart", data.result)
             resolve()
           })
         } else {
@@ -123,6 +125,14 @@ export default {
     delectCart(ctx, payload) {
       return new Promise((resolve, reject) => {
         if (ctx.rootState.users.profile.token) {
+          delectCart([payload])
+            .then(() => {
+              return getCart()
+            })
+            .then(data => {
+              ctx.commit("setCart", data.result)
+              resolve()
+            })
         } else {
           ctx.commit("delectCart", payload)
           resolve()
@@ -133,6 +143,14 @@ export default {
     updataCart(ctx, payload) {
       return new Promise((resolve, reject) => {
         if (ctx.rootState.users.profile.token) {
+          updateCart(payload)
+            .then(() => {
+              return getCart()
+            })
+            .then(data => {
+              ctx.commit("setCart", data.result)
+              resolve()
+            })
         } else {
           ctx.commit("updataCart", payload)
           resolve()
@@ -140,12 +158,21 @@ export default {
       })
     },
     // 全选
-    checkAllCart(ctx, payload) {
+    checkAllCart(ctx, selected) {
       return new Promise((resolve, reject) => {
         if (ctx.rootState.users.profile.token) {
+          const ids = ctx.getters.trueList.map(item => item.skuId)
+          checkAllCart({ selected, ids })
+            .then(() => {
+              return getCart()
+            })
+            .then(data => {
+              ctx.commit("setCart", data.result)
+              resolve()
+            })
         } else {
           ctx.getters.trueList.forEach(item => {
-            ctx.commit("updataCart", { skuId: item.skuId, selected: payload })
+            ctx.commit("updataCart", { skuId: item.skuId, selected })
           })
           resolve()
         }
@@ -155,6 +182,15 @@ export default {
     batchDelectCart(ctx, isClear) {
       return new Promise((resolve, reject) => {
         if (ctx.rootState.users.profile.token) {
+          const ids = ctx.getters[isClear === -1 ? "unUsedList" : "selectedList"].map(item => item.skuId)
+          delectCart(ids)
+            .then(() => {
+              return getCart()
+            })
+            .then(data => {
+              ctx.commit("setCart", data.result)
+              resolve()
+            })
         } else {
           ctx.getters[isClear === -1 ? "unUsedList" : "selectedList"].forEach(item => {
             ctx.commit("delectCart", { skuId: item.skuId })
@@ -167,6 +203,20 @@ export default {
     updataCartSku(ctx, { oldSkuId, newSku }) {
       return new Promise((resolve, reject) => {
         if (ctx.rootState.users.profile.token) {
+          // 找出旧的sku信息
+          const oldSku = ctx.getters.trueList.find(item => item.skuId === oldSkuId)
+          // 删除旧的sku
+          delectCart([oldSku.skuId])
+            .then(() => {
+              return addCart({ skuId: newSku.skuId, count: oldSku.count })
+            })
+            .then(() => {
+              return getCart()
+            })
+            .then(data => {
+              ctx.commit("setCart", data.result)
+              resolve()
+            })
         } else {
           // 找出旧的sku信息
           const oldSku = ctx.getters.trueList.find(item => item.skuId === oldSkuId)
