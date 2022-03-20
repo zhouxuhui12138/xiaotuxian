@@ -179,11 +179,16 @@ const pay = () => {
   if (store.getters["cart/selectedList"].length === 0) {
     return Message({ text: "请至少选择一件商品", type: "warn" })
   }
-  Confirm({ text: "下单需要登录，现在登录？" })
-    .then(() => {
-      router.push("/member/checkout")
-    })
-    .catch(e => e)
+  const { profile } = store.state.users
+  if (!profile.token) {
+    Confirm({ text: "下单需要登录，现在登录？" })
+      .then(() => {
+        router.push("/member/checkout")
+      })
+      .catch(e => e)
+  } else {
+    router.push("/member/checkout")
+  }
 }
 </script>
 

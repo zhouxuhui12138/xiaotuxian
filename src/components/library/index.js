@@ -1,19 +1,20 @@
 /**
  * 扩展组件和指令
  */
-import errImg from '@/assets/images/200.png'
+import errImg from "@/assets/images/200.png"
 import XtxSkeleton from "./XtxSkeleton.vue"
 import XtxSwiper from "./XtxSwiper.vue"
 import XtxMore from "./XtxMore.vue"
-import XtxBread from './XtxBread.vue'
-import XtxBreadItem from './XtxBreadItem.vue'
-import XtxCheckbox from './XtxCheckbox.vue'
-import XtxInfiniteLoading from './XtxInfiniteLoading.vue'
-import XtxCity from './XtxCity.vue'
-import XtxNumbox from './XtxNumbox.vue'
-import XtxButton from './XtxButton.vue'
-import XtxPagination from './XtxPagination.vue'
-import XtxConfirm from './XtxConfirm.vue'
+import XtxBread from "./XtxBread.vue"
+import XtxBreadItem from "./XtxBreadItem.vue"
+import XtxCheckbox from "./XtxCheckbox.vue"
+import XtxInfiniteLoading from "./XtxInfiniteLoading.vue"
+import XtxCity from "./XtxCity.vue"
+import XtxNumbox from "./XtxNumbox.vue"
+import XtxButton from "./XtxButton.vue"
+import XtxPagination from "./XtxPagination.vue"
+import XtxConfirm from "./XtxConfirm.vue"
+import XtxDialog from "./XtxDialog.vue"
 
 export default {
   install(app) {
@@ -41,6 +42,8 @@ export default {
     app.component(XtxPagination.name, XtxPagination)
     // confirm
     app.component(XtxConfirm.name, XtxConfirm)
+    // dialog
+    app.component(XtxDialog.name, XtxDialog)
 
     // 定义指令
     difineDirective(app)
@@ -56,20 +59,23 @@ const difineDirective = app => {
   app.directive("lazy", {
     mounted(el, binding) {
       // 观察dom是否进入可视区域
-      const observe = new IntersectionObserver(([{ isIntersecting }]) => {
-        if (isIntersecting) {
-          // 停止观察
-          observe.unobserve(el)
-          // 图片加载失败 设置默认图片
-          el.onerror = () => {
-            el.src = errImg
+      const observe = new IntersectionObserver(
+        ([{ isIntersecting }]) => {
+          if (isIntersecting) {
+            // 停止观察
+            observe.unobserve(el)
+            // 图片加载失败 设置默认图片
+            el.onerror = () => {
+              el.src = errImg
+            }
+            // 把指令传过来的src赋值给被观测的dom
+            el.src = binding.value
           }
-          // 把指令传过来的src赋值给被观测的dom
-          el.src = binding.value
+        },
+        {
+          threshold: 0
         }
-      }, {
-        threshold: 0
-      })
+      )
       // 开启观察
       observe.observe(el)
     }
