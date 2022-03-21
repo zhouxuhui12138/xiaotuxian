@@ -9,6 +9,7 @@ const Goods = () => import("@/views/goods/index.vue")
 const Login = () => import("@/views/login/index.vue")
 const Cart = () => import("@/views/cart/index.vue")
 const Checkout = () => import("@/views/member/pay/Checkout.vue")
+const Pay = () => import("@/views/member/pay/index.vue")
 const Test = () => import("@/Test.vue")
 
 const routes = [
@@ -21,7 +22,8 @@ const routes = [
       { path: "/category/sub/:id", component: SubCategory },
       { path: "/product/:id", component: Goods },
       { path: "/cart", component: Cart },
-      { path: "/member/checkout", component: Checkout }
+      { path: "/member/checkout", component: Checkout },
+      { path: "/member/pay", component: Pay },
     ]
   },
   { path: "/login", component: Login },

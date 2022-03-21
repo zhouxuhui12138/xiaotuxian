@@ -10,19 +10,19 @@
           <li><span>联系方式：</span>{{ address.contact }}</li>
           <li><span>收货地址：</span>{{ address.fullLocation + address.address }}</li>
         </ul>
-        <a href="javascript:;">修改地址</a>
+        <a href="javascript:;" @click="openEditAddress(address)">修改地址</a>
       </template>
     </div>
     <div class="action">
       <XtxButton class="btn" @click="openDialog">切换地址</XtxButton>
-      <XtxButton class="btn" @click="openEditAddress">添加地址</XtxButton>
+      <XtxButton class="btn" @click="openEditAddress({})">添加地址</XtxButton>
     </div>
   </div>
   <!-- 切换地址对话框 -->
   <XtxDialog title="切换收货地址" v-model:visible="visible">
     <div
       class="text item"
-      :class="{ active: selectedAdress && selectedAdress === item.id }"
+      :class="{ active: selectedAdress && selectedAdress.id === item.id }"
       v-for="item in list"
       :key="item.id"
       @click="selectedAdress = item"
@@ -42,7 +42,7 @@
   </XtxDialog>
 
   <!-- 添加地址对话框 -->
-  <AddressEdit ref="addressEditCom" />
+  <AddressEdit @editAddress="editAddress" ref="addressEditCom" />
 </template>
 
 <script setup>
@@ -76,8 +76,8 @@ const visible = ref(false)
 
 // 开启添加地址对话框
 const addressEditCom = ref(null)
-const openEditAddress = () => {
-  addressEditCom.value.open()
+const openEditAddress = (address) => {
+  addressEditCom.value.open(address)
 }
 
 // 改变地址 切换地址并且跳转父组件
@@ -91,6 +91,15 @@ const confirmAddress = () => {
 const openDialog = () => {
   selectedAdress.value = null
   visible.value = true
+}
+
+// 修改地址成功时 修改list列表
+const editAddress = (formData) => {
+  // 因为formData和list指向同一个内存地址 所以formData在提交完成后不能清空
+  // 实现深拷贝
+  console.log(formData)
+  const obj = JSON.stringify(formData)
+  props.list.unshift(JSON.parse(obj))
 }
 </script>
 

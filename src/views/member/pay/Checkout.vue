@@ -83,7 +83,7 @@
         </div>
         <!-- 提交订单 -->
         <div class="submit">
-          <XtxButton type="primary">提交订单</XtxButton>
+          <XtxButton type="primary" @click="submit">提交订单</XtxButton>
         </div>
       </div>
     </div>
@@ -93,23 +93,46 @@
 <script setup>
 import { reactive, ref } from "vue"
 import CheckoutAddress from "./CheckoutAddress.vue"
-import { createOrder } from "@/api/pay.js"
+import { createOrder, submitOrder } from "@/api/pay.js"
+import Message from "../../../components/library/Message"
+import { useRouter } from "vue-router"
 
 // 获取订单数据
 const order = ref(null)
 createOrder().then(data => {
   order.value = data.result
+  reqParams.goods = data.result.goods.map(item => {
+    return {
+      skuId: item.skuId,
+      count: item.count
+    }
+  })
 })
 
 // 下单请求参数
 const reqParams = reactive({
-  addressId: null
+  addressId: null,
+  deliveryTimeType: 1,
+  payType: 1,
+  buyerMessage: "",
+  goods: []
 })
 
 // 获取收货id
-const addressChange = (id) => {
+const addressChange = id => {
   reqParams.addressId = id
-  console.log(reqParams.addressId)
+}
+
+// 提交订单
+const router = useRouter()
+const submit = () => {
+  if (!reqParams.addressId) {
+    return Message({ text: "请选择收货地址" })
+  }
+  submitOrder(reqParams).then(data => {
+    Message({ text: "提交成功", type: "success" })
+    router.push(`/member/pay?orderId=${data.result.id}`)
+  })
 }
 </script>
 
