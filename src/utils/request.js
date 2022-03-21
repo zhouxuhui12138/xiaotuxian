@@ -2,7 +2,7 @@ import axios from "axios"
 import store from "@/store/index"
 import route from '@/router/index'
 
-const baseURL = "https://apipc-xiaotuxian-front.itheima.net/"
+export const baseURL = "https://apipc-xiaotuxian-front.itheima.net/"
 
 const request = axios.create({
   baseURL,

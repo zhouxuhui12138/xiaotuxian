@@ -27,8 +27,8 @@
         <p class="head">选择以下支付方式付款</p>
         <div class="item">
           <p>支付平台</p>
-          <a class="btn wx" href="javascript:;" target="_blank"></a>
-          <a class="btn alipay" href="javascript:;"></a>
+          <a class="btn wx" href="javascript:;"></a>
+          <a class="btn alipay" @click="visible = true" :href="payUrl" target="_blank"></a>
         </div>
         <div class="item">
           <p>支付方式</p>
@@ -39,6 +39,19 @@
           <a class="btn" href="javascript:;">交通银行</a>
         </div>
       </div>
+
+      <!-- 支付等待框 -->
+      <XtxDialog title="正在支付..." v-model:visible="visible">
+        <div class="pay-wait">
+          <img src="@/assets/images/load.gif" alt="" />
+          <div v-if="order">
+            <p>如果支付成功：</p>
+            <RouterLink :to="`/member/order/${orderId}`">查看订单详情></RouterLink>
+            <p>如果支付失败：</p>
+            <RouterLink to="/">查看相关疑问></RouterLink>
+          </div>
+        </div>
+      </XtxDialog>
     </div>
   </div>
 </template>
@@ -48,6 +61,7 @@ import { findOrder } from "@/api/pay.js"
 import { ref } from "vue"
 import { useRoute } from "vue-router"
 import { usePayTime } from "@/hooks"
+import { baseURL } from "@/utils/request.js"
 
 const route = useRoute()
 const { orderId } = route.query
@@ -62,9 +76,27 @@ findOrder(orderId).then(data => {
 })
 
 const { start, timeText } = usePayTime()
+
+// 支付地址
+const redirect = encodeURIComponent(`http://localhost:8080/#/pay/callback`)
+const payUrl = `${baseURL}pay/aliPay?orderId=${orderId}&redirect=${redirect}`
+
+const visible = ref(false)
 </script>
 
 <style scoped lang="less">
+.pay-wait {
+  display: flex;
+  justify-content: space-around;
+  p {
+    margin-top: 30px;
+    font-size: 14px;
+  }
+  a {
+    color: @xtxColor;
+  }
+}
+
 .pay-info {
   background: #fff;
   display: flex;
