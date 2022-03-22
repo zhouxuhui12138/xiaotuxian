@@ -1,5 +1,5 @@
 import { createRouter, createWebHashHistory, RouteRecordRaw } from "vue-router"
-import store from '@/store'
+import store from "@/store"
 
 const Layout = () => import("@/views/Layout.vue")
 const Home = () => import("@/views/home/index.vue")
@@ -11,6 +11,9 @@ const Cart = () => import("@/views/cart/index.vue")
 const Checkout = () => import("@/views/member/pay/Checkout.vue")
 const Pay = () => import("@/views/member/pay/index.vue")
 const PayResult = () => import("@/views/member/pay/PayResult.vue")
+const MemberLayout = () => import("@/views/member/Layout.vue")
+const MemberHome = () => import("@/views/member/home/index.vue")
+
 const Test = () => import("@/Test.vue")
 
 const routes = [
@@ -26,10 +29,15 @@ const routes = [
       { path: "/member/checkout", component: Checkout },
       { path: "/member/pay", component: Pay },
       { path: "/pay/callback", component: PayResult },
+      {
+        path: "/member",
+        component: MemberLayout,
+        children: [{ path: "/member", component: MemberHome }]
+      }
     ]
   },
   { path: "/login", component: Login },
-  { path: "/test", component: Test },
+  { path: "/test", component: Test }
 ]
 
 const router = createRouter({
